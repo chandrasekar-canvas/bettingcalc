@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Betting Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        select, input {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+        }
+        #resultDetails {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Betting Calculator</h2>
+        <label>Starting Bet (₹): <input type="number" id="startingBet" value="4"></label>
+        <label>Multiplier (x): <input type="number" id="multiplier" value="2.4" step="0.1"></label>
+        <label>Levels: <input type="number" id="levels" value="8"></label>
+        <label>Bet Type: 
+            <select id="betType" onchange="updateBetDetails()">
+                <option value="number">Number Guessing</option>
+                <option value="smallbig">Small/Big</option>
+                <option value="doublecolor">Double Color</option>
+                <option value="red">Red</option>
+                <option value="green">Green</option>
+                <option value="purple">Purple</option>
+            </select>
+        </label>
+        <button onclick="calculateBets()">Calculate</button>
+        
+        <h3>Betting Table</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Level</th>
+                        <th>Bet Amount (₹)</th>
+                        <th>Profit (₹)</th>
+                        <th>Cumulative Loss (₹)</th>
+                        <th>Potential Profit (₹)</th>
+                    </tr>
+                </thead>
+                <tbody id="betTableBody"></tbody>
+            </table>
+        </div>
+
+        <div id="resultDetails"></div>
+    </div>
+
+    <script>
+        function updateBetDetails() {
+            let betType = document.getElementById('betType').value;
+            let resultDetails = document.getElementById('resultDetails');
+
+            if (betType === "number") {
+                resultDetails.innerHTML = "Number Guessing: High-risk, high-reward betting. Correct guess gives 8.84x payout.";
+            } else if (betType === "smallbig") {
+                resultDetails.innerHTML = "Small/Big: Moderate-risk betting with a 1.95x multiplier.";
+            } else if (betType === "doublecolor") {
+                resultDetails.innerHTML = "Double Color: 2x multiplier, but 2% tax is deducted from the profit.";
+            } else if (betType === "red") {
+                resultDetails.innerHTML = "Red: Wins if 0, 2, 4, 6, 8; if 0, odds are 1.5x.";
+            } else if (betType === "green") {
+                resultDetails.innerHTML = "Green: Wins if 1, 3, 5, 7, 9; if 5, odds are 1.5x.";
+            } else if (betType === "purple") {
+                resultDetails.innerHTML = "Purple: Wins if 0 or 5.";
+            }
+        }
+
+        function calculateBets() {
+            let startingBet = parseFloat(document.getElementById('startingBet').value);
+            let multiplier = parseFloat(document.getElementById('multiplier').value);
+            let levels = parseInt(document.getElementById('levels').value);
+            let betType = document.getElementById('betType').value;
+            let tableBody = document.getElementById('betTableBody');
+            tableBody.innerHTML = '';
+
+            let betAmount = startingBet;
+            let cumulativeLoss = 0;
+            
+            for (let i = 1; i <= levels; i++) {
+                cumulativeLoss += betAmount;
+                let profit = 0;
+                let potentialProfit = 0;
+                
+                if (betType === "number") {
+                    profit = betAmount * 8.84;
+                } else if (betType === "smallbig") {
+                    profit = betAmount * 1.95;
+                } else if (betType === "doublecolor") {
+                    profit = betAmount * 2 - betAmount * 0.02;
+                } else if (betType === "red" || betType === "green") {
+                    profit = betAmount * 2;
+                } else if (betType === "purple") {
+                    profit = betAmount * 4.5;
+                }
+                
+                potentialProfit = profit - cumulativeLoss;
+                
+                let row = `<tr>
+                    <td>Level ${i}</td>
+                    <td>₹${betAmount.toFixed(2)}</td>
+                    <td>₹${profit.toFixed(2)}</td>
+                    <td>₹${cumulativeLoss.toFixed(2)}</td>
+                    <td>₹${potentialProfit.toFixed(2)}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+                betAmount *= multiplier;
+            }
+            
+            updateBetDetails();
+        }
+    </script>
+</body>
+</html>
